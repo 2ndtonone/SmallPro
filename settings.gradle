@@ -1,1 +1,8 @@
-include ':app'
+include ':app', ':logger', ':ptr-lib', ':kf5sdkModule'
+include ':async-http'
+include ':LoadMoreLib'
+
+project(':ptr-lib').projectDir = new File('module/ptr-lib')
+project(':LoadMoreLib').projectDir = new File('module/LoadMoreLib')
+project(':async-http').projectDir = new File('module/async-http')
+project(':logger').projectDir = new File('module/logger')

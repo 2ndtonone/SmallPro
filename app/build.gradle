@@ -2,38 +2,176 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.neenbedankt.android-apt'
 apply plugin: 'android-apt'
 
-android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.3"
-    defaultConfig {
-        applicationId "com.example.lenovo.jianghuo"
-        minSdkVersion 15
-        targetSdkVersion 25
-        versionCode 1
-        versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+        maven { url 'https://repos.zeroturnaround.com/nexus/content/repositories/zt-public-releases' }
     }
-    buildTypes {
+    dependencies {
+        classpath "com.android.tools.build:gradle:${ANDROID_GRADLE_PLUGIN_VERSION}"
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+        classpath 'com.vanniktech:gradle-android-junit-jacoco-plugin:0.5.0'
+    }
+}
+android {
+    compileSdkVersion COMPILE_SDK_VERSION as int
+    buildToolsVersion BUILD_TOOLS_VERSION
+    useLibrary 'org.apache.http.legacy'
+
+    defaultConfig {
+        applicationId "com.Funcgo.Outline"
+        minSdkVersion MIN_SDK_VERSION as int
+        targetSdkVersion TARGET_SDK_VERSION as int
+        versionName VERSION_NAME
+        versionCode VERSION_CODE as int
+        multiDexEnabled true
+        buildConfigField "boolean", "PRINT_LOG", "true"
+    }
+
+    signingConfigs {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            storeFile file(RELEASE_STORE_FILE)
+            storePassword RELEASE_STORE_PASSWORD
+            keyAlias RELEASE_KEY_ALIAS
+            keyPassword RELEASE_KEY_PASSWORD
         }
     }
+
+    buildTypes {
+        debug {
+            buildConfigField "boolean", "PRINT_LOG", "true"
+            buildConfigField "String", "SERVER_TYPE", '"testshop"'
+            versionNameSuffix "1"
+            signingConfig signingConfigs.release
+//            testCoverageEnabled true
+        }
+        release {
+            buildConfigField "boolean", "PRINT_LOG", "false"
+            buildConfigField "String", "SERVER_TYPE", '"release"'
+//            minifyEnabled true
+//            proguardFiles file('proguard-project.txt')
+            signingConfig signingConfigs.release
+        }
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+
+    dexOptions {
+        preDexLibraries = false
+        javaMaxHeapSize "2g"
+    }
+
+    /** Rename output file names */
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            // 更改最终apk命名
+            String appName = project.name
+            String vCode = variant.versionCode
+            String vName = variant.versionName
+            String buildTypeName = variant.buildType.name
+            String flavorName = null
+            if (variant.productFlavors && !variant.productFlavors.isEmpty()) {  // productFlavors可能有多个维度，但现在实际用只会用1个维度，所以只取第一个flavorName
+                flavorName = variant.productFlavors[0]?.name
+            }
+            String apkFileName = "${appName}_${vCode}_${vName}.apk"
+            if (flavorName) { // 如果配置了productFlavors就加上flavorName
+                apkFileName = "${appName}_${flavorName}_${vCode}_${vName}.apk"
+            }
+            if (!apkFileName.contains(buildTypeName)) { // 如果apk文件名中没有buildType名称就在末尾加上
+                apkFileName = apkFileName.replace(".apk", "_${buildTypeName}.apk")
+            }
+            output.outputFile = new File(output.outputFile.parent, apkFileName)
+
+            // 打完混淆包后来干一些事情
+            if (variant.buildType.minifyEnabled) {
+                variant.assemble.doLast {
+                    // 定义文件拷贝方法
+                    def copyFile = { File source, File dest ->
+                        if (source.exists()) {
+                            dest.withDataOutputStream { os ->
+                                source.withDataInputStream { is ->
+                                    os << is
+                                }
+                            }
+                        }
+                    }
+                    // 混淆的mapping文件拷贝一份出来保存着
+                    File sourceMappingFile = new File("${output.outputFile.parentFile.parent}/mapping/${variant.dirName}/mapping.txt")
+                    File destMappingFile = new File(project.projectDir, "map.txt")
+                    copyFile(sourceMappingFile, destMappingFile)
+
+                    // 混淆的seeds文件拷贝一份出来保存着
+                    File sourceSeedsFile = new File("${output.outputFile.parentFile.parent}/mapping/${variant.dirName}/seeds.txt")
+                    File destSeedsFile = new File(project.projectDir, sourceSeedsFile.name)
+                    copyFile(sourceSeedsFile, destSeedsFile)
+
+                    // apk文件拷贝一份出来保存着
+                    File destTestDir = new File(rootDir.absolutePath + "/build/apk4test/")
+                    destTestDir.mkdirs()
+                    File destTestApkFile = new File(destTestDir, getDate() + "_" + apkFileName)
+                    copyFile(output.outputFile, destTestApkFile)
+                }
+            }
+        }
+    }
+    productFlavors {
+        yingyongbao {
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "yingyongbao"]
+        }
+    }
+
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES.txt'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'asm-license.txt'
+    }
+
+}
+
+def getDate() {
+    def date = new Date()
+    def formattedDate = date.format('yyyyMMddHHmm')
+    return formattedDate
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    testCompile 'junit:junit:4.12'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'com.android.support:support-v4:'+SUPPORT
+    compile 'com.android.support:recyclerview-v7:'+SUPPORT
+    compile 'com.android.support:gridlayout-v7:'+SUPPORT
+    compile 'com.android.support:cardview-v7:'+SUPPORT
+    compile 'com.android.support:appcompat-v7:'+SUPPORT
+    compile 'com.android.support:design:'+SUPPORT
+    compile 'com.android.support:multidex:1.0.1'
+
+    compile 'de.greenrobot:eventbus:2.4.0'
+    compile 'com.squareup.picasso:picasso:2.5.2'
+    compile 'com.liulishuo.filedownloader:library:0.3.1'
+
     compile 'com.jakewharton:butterknife:8.2.0'
     apt 'com.jakewharton:butterknife-compiler:8.2.0'
-    compile 'com.android.support:design:24.2.1'
+
+    compile 'com.github.hotchemi:permissionsdispatcher:2.1.3'
+    apt "com.github.hotchemi:permissionsdispatcher-processor:2.1.3"
+
     compile 'de.hdodenhof:circleimageview:2.1.0'
-    compile 'com.github.shinelw:library:1.0.1'
+    compile 'org.bouncycastle:bcprov-jdk15on:1.52'
+    compile 'com.futuremind.recyclerfastscroll:fastscroll:0.2.5'
+    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    compile('com.googlecode.json-simple:json-simple:1.1.1') {
+        exclude group: 'junit', module: 'junit'
+        exclude group: 'org.hamcrest', module: 'hamcrest-core'
+    }
 
+    compile project(':logger')
+    compile project(':ptr-lib')
+    compile project(':async-http')
+    compile project(':LoadMoreLib')
 
+    compile project(':kf5sdkModule')
 }

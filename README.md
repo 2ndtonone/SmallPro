@@ -1,3 +1,0 @@
-# SmallPro
-init
-1
