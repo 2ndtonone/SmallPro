@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/it_buy"
+            android:icon="@drawable/taocan"
+            android:title="@string/nav_taocan" />
+        <item
+            android:id="@+id/it_seriver"
+            android:icon="@drawable/fuwu"
+            android:title="@string/nav_fuwu" />
+        <item
+            android:id="@+id/it_callus"
+            android:icon="@drawable/lianxi"
+            android:title="@string/nav_lianxi" />
+        <item
+            android:id="@+id/it_exit"
+            android:icon="@drawable/exit"
+            android:title="@string/nav_exit" />
+    </group>
+</menu>

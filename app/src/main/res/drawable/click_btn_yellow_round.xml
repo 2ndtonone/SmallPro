@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android" android:enterFadeDuration="0" android:exitFadeDuration="@android:integer/config_shortAnimTime">
+
+    <item android:state_enabled="false">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/zheci_backgournd" />
+            <corners android:radius="4dp" />
+        </shape>
+    </item>
+
+
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/shouye_taocanhuang" />
+            <corners android:radius="4dp" />
+        </shape>
+    </item>
+
+</selector>

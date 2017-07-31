@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,6 +32,7 @@ import com.Funcgo.Outline.ui.views.CustomToast;
 import com.Funcgo.Outline.ui.views.MyCircleProgressBar;
 import com.Funcgo.Outline.utils.AggAsyncHttpResponseHandler;
 import com.Funcgo.Outline.utils.Debug;
+import com.Funcgo.Outline.utils.LogUtils;
 import com.Funcgo.Outline.utils.Utility;
 import com.Funcgo.Outline.web.WebAPI;
 import com.google.gson.Gson;
@@ -40,12 +42,15 @@ import com.kf5.sdk.system.utils.SPUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import pl.droidsonroids.gif.GifDrawable;
+import pl.droidsonroids.gif.GifImageView;
 
 /**
  * Created by lenovo on 2017/6/21.
@@ -60,6 +65,10 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
     MyCircleProgressBar progressBar;
     @BindView(R.id.iv_menus)
     ImageView ivMenus;
+    @BindView(R.id.iv_out)
+    ImageView iv_out;
+    @BindView(R.id.iv_inner)
+    ImageView iv_inner;
     @BindView(R.id.tv_title)
     TextView tvTitle;
     @BindView(R.id.tv_current)
@@ -68,6 +77,8 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
     TextView tvState;
     @BindView(R.id.nav_view)
     NavigationView navView;
+    @BindView(R.id.activity_gif_giv )
+    GifImageView mGifImageView ;
 
     ImageView iv_head;
     TextView tv_name;
@@ -76,6 +87,8 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
     private static final int START_VPN_SERVICE_REQUEST_CODE = 1985;
     private Calendar mCalendar;
 
+    private boolean isConnect = false;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,7 +96,7 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
         ButterKnife.bind(this);
         initView();
         getData();
-
+//        initGif();
 
         mCalendar = Calendar.getInstance();
         LocalVpnService.addOnStatusChangedListener(this);
@@ -91,6 +104,30 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
         onLogReceived("Proxy global mode is on");
         if (AppProxyManager.isLollipopOrAbove){
             new AppProxyManager(this);
+        }
+    }
+
+    private void initGif() {
+        try {
+            GifDrawable gifDrawable = new GifDrawable(getAssets(), "connect_connecting1.gif");
+            mGifImageView.setImageDrawable(gifDrawable);
+//            final MediaController mediaController = new MediaController(this);
+//            mediaController.setMediaPlayer((GifDrawable) mGifImageView.getDrawable());
+//            /**
+//             * 也许你会像我一样，当看到上面一行代码时会纳闷，为什么setMediaPalyer传入的参数会是一个
+//             * GifDrawable对象呢，它需要的参数类型是MediaPlayerControl。。。
+//             * 还永德我们前面提到GifDrawable实现了MediaPlayerControl接口吗？
+//             * 嗯。。。哦，，，恍然大明白了
+//             */
+//            mediaController.setAnchorView(mGifImageView);
+//            mGifImageView.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    mediaController.show();
+//                }
+//            });
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -255,7 +292,7 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
         }
     }
 
-    @OnClick({R.id.ll_service, R.id.iv_menus, R.id.ll_country, R.id.iv_connect})
+    @OnClick({R.id.ll_service, R.id.iv_menus, R.id.ll_country, R.id.fl_connect})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.ll_country:
@@ -267,14 +304,17 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
             case R.id.iv_menus:
                 dl.openDrawer(GravityCompat.START);
                 break;
-            case R.id.iv_connect:
-                Intent intent = LocalVpnService.prepare(this);
-                if (intent == null) {
-                    startVPNService();
-                } else {
-                    startActivityForResult(intent, START_VPN_SERVICE_REQUEST_CODE);
+            case R.id.fl_connect:
+                if(isConnect){
+                    LocalVpnService.IsRunning = false;
+                }else {
+                    Intent intent = LocalVpnService.prepare(this);
+                    if (intent == null) {
+                        startVPNService();
+                    } else {
+                        startActivityForResult(intent, START_VPN_SERVICE_REQUEST_CODE);
+                    }
                 }
-
                 break;
         }
     }
@@ -319,6 +359,38 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
                 mCalendar.get(Calendar.MINUTE),
                 mCalendar.get(Calendar.SECOND),
                 logString);
-        System.out.println(logString);
+        LogUtils.i(getLogTag(),logString);
+        if(logString.contains("starting")){
+            iv_out.setVisibility(View.GONE);
+            iv_inner.setVisibility(View.GONE);
+            mGifImageView.setVisibility(View.VISIBLE);
+            try {
+                GifDrawable gifDrawable = new GifDrawable(getAssets(), "connect_connecting2.gif");
+                mGifImageView.setImageDrawable(gifDrawable);
+            }catch (Exception e){
+
+            }
+        }else if(logString.contains("已连接")){
+            isConnect = true;
+            try {
+                GifDrawable gifDrawable = new GifDrawable(getAssets(), "connect_connected.gif");
+                mGifImageView.setImageDrawable(gifDrawable);
+            }catch (Exception e){
+
+            }
+
+        }else if(logString.contains("已断开")){
+            isConnect = false;
+            iv_out.setVisibility(View.VISIBLE);
+            iv_inner.setVisibility(View.VISIBLE);
+            mGifImageView.setVisibility(View.GONE);
+            try {
+                GifDrawable gifDrawable = new GifDrawable(getAssets(), "connect_connecting1.gif");
+                mGifImageView.setImageDrawable(gifDrawable);
+            }catch (Exception e){
+
+            }
+
+        }
     }
 }
