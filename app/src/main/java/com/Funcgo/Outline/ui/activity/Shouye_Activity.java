@@ -17,9 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.MediaController;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.Funcgo.Outline.LocationApplication;
 import com.Funcgo.Outline.R;
@@ -33,6 +31,7 @@ import com.Funcgo.Outline.ui.views.MyCircleProgressBar;
 import com.Funcgo.Outline.utils.AggAsyncHttpResponseHandler;
 import com.Funcgo.Outline.utils.Debug;
 import com.Funcgo.Outline.utils.LogUtils;
+import com.Funcgo.Outline.utils.SharePreUtil;
 import com.Funcgo.Outline.utils.Utility;
 import com.Funcgo.Outline.web.WebAPI;
 import com.google.gson.Gson;
@@ -132,7 +131,7 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
     }
 
     private void getData() {
-        WebAPI.getUserInfo(LocationApplication.getInstance().getToken(), new AggAsyncHttpResponseHandler(this, new AggAsyncHttpResponseHandler.CallBack() {
+        WebAPI.getUserInfo(SharePreUtil.getStringData(this,"token",""), new AggAsyncHttpResponseHandler(this, new AggAsyncHttpResponseHandler.CallBack() {
             @Override
             public void onSuccess(String data) {
 
@@ -162,6 +161,16 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
     }
 
 
+    @Override
+    public void onBackPressed() {
+//        super.onBackPressed();
+        Intent mHomeIntent = new Intent(Intent.ACTION_MAIN);
+
+        mHomeIntent.addCategory(Intent.CATEGORY_HOME);
+        mHomeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+        startActivity(mHomeIntent);
+    }
 
     private void setupView(UserInfo userInfo) {
         tv_name.setText(userInfo.name);
@@ -233,6 +242,9 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
                     case R.id.it_exit:
                         finish();
                         SPUtils.clearSP();
+                        LocalVpnService.IsRunning = false;
+                        SharePreUtil.deleteStringData(Shouye_Activity.this,"token");
+                        SharePreUtil.deleteStringData(Shouye_Activity.this,"account");
                         Intent intent = new Intent(Shouye_Activity.this, LoginActivity.class);
                         startActivity(intent);
 
@@ -347,7 +359,7 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
     @Override
     public void onStatusChanged(String status, Boolean isRunning) {
         onLogReceived(status);
-        Toast.makeText(this, status, Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, status, Toast.LENGTH_SHORT).show();
     }
 
     @SuppressLint("DefaultLocale")

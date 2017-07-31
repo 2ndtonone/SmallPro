@@ -185,12 +185,4 @@ public class LocationApplication extends Application implements Thread.UncaughtE
         return getClass().getSimpleName();
     }
 
-    private String token;
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    public String getToken() {
-        return token;
-    }
 }

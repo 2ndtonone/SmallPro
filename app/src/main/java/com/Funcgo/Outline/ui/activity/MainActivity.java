@@ -12,7 +12,6 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Toast;
 
-import com.Funcgo.Outline.LocationApplication;
 import com.Funcgo.Outline.R;
 import com.Funcgo.Outline.alipay.PayResult;
 import com.Funcgo.Outline.entity.ServiceList;
@@ -20,6 +19,7 @@ import com.Funcgo.Outline.ui.views.viewpagercards.CardFragmentPagerAdapter;
 import com.Funcgo.Outline.ui.views.viewpagercards.CardPagerAdapter;
 import com.Funcgo.Outline.ui.views.viewpagercards.ShadowTransformer;
 import com.Funcgo.Outline.utils.AggAsyncHttpResponseHandler;
+import com.Funcgo.Outline.utils.SharePreUtil;
 import com.Funcgo.Outline.web.WebAPI;
 import com.alipay.sdk.app.PayTask;
 import com.google.gson.Gson;
@@ -79,7 +79,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
     }
 
     private void getData() {
-        WebAPI.getServiceList(LocationApplication.getInstance().getToken(), new AggAsyncHttpResponseHandler(this, new AggAsyncHttpResponseHandler.CallBack() {
+        WebAPI.getServiceList(SharePreUtil.getStringData(this,"token",""), new AggAsyncHttpResponseHandler(this, new AggAsyncHttpResponseHandler.CallBack() {
             @Override
             public void onSuccess(String data) {
                 serviceList = new Gson().fromJson(data, ServiceList.class);
@@ -119,7 +119,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
     }
 
     private void pay(int id) {
-        WebAPI.pay(LocationApplication.getInstance().getToken(), id, new AggAsyncHttpResponseHandler(this, new AggAsyncHttpResponseHandler.CallBack() {
+        WebAPI.pay(SharePreUtil.getStringData(this,"token",""), id, new AggAsyncHttpResponseHandler(this, new AggAsyncHttpResponseHandler.CallBack() {
             @Override
             public void onSuccess(String data) {
                 try {

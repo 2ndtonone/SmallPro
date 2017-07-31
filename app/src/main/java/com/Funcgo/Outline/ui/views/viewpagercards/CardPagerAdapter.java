@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -22,6 +23,7 @@ public class CardPagerAdapter extends PagerAdapter implements CardAdapter {
     private List<CardView> mViews;
     private List<ServiceList.DataBean> mData;
     private float mBaseElevation;
+    private Context context;
 
     public void setListener(OnBuyClickListener listener) {
         this.listener = listener;
@@ -60,7 +62,7 @@ public class CardPagerAdapter extends PagerAdapter implements CardAdapter {
 
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
-        Context context = container.getContext();
+        context = container.getContext();
         View view = LayoutInflater.from(context)
                 .inflate(R.layout.adapter, container, false);
         container.addView(view);
@@ -97,16 +99,23 @@ public class CardPagerAdapter extends PagerAdapter implements CardAdapter {
         final TextView tv_desc3 = (TextView) view.findViewById(R.id.tv_desc3);
         final TextView tv_desc4 = (TextView) view.findViewById(R.id.tv_desc4);
         final TextView tv_desc5 = (TextView) view.findViewById(R.id.tv_desc5);
+
+        final ImageView iv_1 = (ImageView) view.findViewById(R.id.iv_1);
+        final ImageView iv_2 = (ImageView) view.findViewById(R.id.iv_2);
+        final ImageView iv_3 = (ImageView) view.findViewById(R.id.iv_3);
+        final ImageView iv_4 = (ImageView) view.findViewById(R.id.iv_4);
+        final ImageView iv_5 = (ImageView) view.findViewById(R.id.iv_5);
+
         final TextView tv_level = (TextView) view.findViewById(R.id.tv_level);
         final TextView tv_money = (TextView) view.findViewById(R.id.tv_money);
 
+        checkItemSupport(item.description.get(0),tv_desc1,iv_1);
+        checkItemSupport(item.description.get(1),tv_desc2,iv_2);
+        checkItemSupport(item.description.get(2),tv_desc3,iv_3);
+        checkItemSupport(item.description.get(3),tv_desc4,iv_4);
+        checkItemSupport(item.description.get(4),tv_desc5,iv_5);
         tv_level.setText(item.level);
         tv_money.setText(item.sale_price);
-        tv_desc1.setText(item.description.get(0));
-        tv_desc2.setText(item.description.get(1));
-        tv_desc3.setText(item.description.get(2));
-        tv_desc4.setText(item.description.get(3));
-        tv_desc5.setText(item.description.get(4));
 
         if (i == 0) {
             ll_top.setBackgroundColor(Color.parseColor("#FF16DD8D"));
@@ -145,6 +154,16 @@ public class CardPagerAdapter extends PagerAdapter implements CardAdapter {
             }
         });
 
+    }
+
+    private void checkItemSupport(String desc, TextView textView, ImageView imageView) {
+        if(desc.contains("-")){
+            textView.setText(desc.substring(1));
+            imageView.setImageResource(R.drawable.planlistnotcontain);
+        }else {
+            textView.setText(desc);
+            imageView.setImageResource(R.drawable.planlistcontain);
+        }
     }
 
     public interface OnBuyClickListener{

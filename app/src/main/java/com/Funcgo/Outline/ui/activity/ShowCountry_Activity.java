@@ -7,12 +7,12 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import com.Funcgo.Outline.LocationApplication;
 import com.Funcgo.Outline.R;
 import com.Funcgo.Outline.entity.Country;
 import com.Funcgo.Outline.entity.ServiceEntity;
 import com.Funcgo.Outline.ui.adapter.SelectCountryAdapter;
 import com.Funcgo.Outline.utils.AggAsyncHttpResponseHandler;
+import com.Funcgo.Outline.utils.SharePreUtil;
 import com.Funcgo.Outline.web.WebAPI;
 import com.google.gson.Gson;
 
@@ -47,7 +47,7 @@ public class ShowCountry_Activity extends BaseActivity {
     }
 
     private void getServiceData(String country_service, String country_name) {
-        WebAPI.getServiceDetail(LocationApplication.getInstance().getToken(),country_service,country_name,new AggAsyncHttpResponseHandler(this, new AggAsyncHttpResponseHandler.CallBack() {
+        WebAPI.getServiceDetail(SharePreUtil.getStringData(this,"token",""),country_service,country_name,new AggAsyncHttpResponseHandler(this, new AggAsyncHttpResponseHandler.CallBack() {
             @Override
             public void onSuccess(String data) {
                 ServiceEntity serviceEntity = new Gson().fromJson(data, ServiceEntity.class);
@@ -60,7 +60,7 @@ public class ShowCountry_Activity extends BaseActivity {
     }
 
     private void getListData() {
-        WebAPI.getServiceCountryList(LocationApplication.getInstance().getToken(), new AggAsyncHttpResponseHandler(this, new AggAsyncHttpResponseHandler.CallBack() {
+        WebAPI.getServiceCountryList(SharePreUtil.getStringData(this,"token",""), new AggAsyncHttpResponseHandler(this, new AggAsyncHttpResponseHandler.CallBack() {
 
 
             @Override

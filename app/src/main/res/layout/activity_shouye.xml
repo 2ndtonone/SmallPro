@@ -150,8 +150,7 @@
                 android:layout_height="80dp"
                 android:layout_gravity="center"
                 android:visibility="gone"
-                android:src="@drawable/homepagelink"
-                android:layout_centerInParent="true"/>
+                android:src="@drawable/homepagelink"/>
         </FrameLayout>
 
 

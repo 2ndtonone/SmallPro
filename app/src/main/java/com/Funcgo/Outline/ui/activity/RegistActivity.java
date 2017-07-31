@@ -11,10 +11,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.Funcgo.Outline.LocationApplication;
 import com.Funcgo.Outline.R;
 import com.Funcgo.Outline.ui.views.CustomToast;
 import com.Funcgo.Outline.utils.AggAsyncHttpResponseHandler;
+import com.Funcgo.Outline.utils.SharePreUtil;
 import com.Funcgo.Outline.web.WebAPI;
 import com.orhanobut.logger.TextUtils;
 
@@ -155,7 +155,8 @@ public class RegistActivity extends BaseActivity {
     }
 
     private void goHome(String token) {
-        LocationApplication.getInstance().setToken(token);
+        SharePreUtil.saveStringData(this,"account",etAccount.getText().toString());
+        SharePreUtil.saveStringData(this,"token",token);
         startActivity(new Intent(this,Shouye_Activity.class));
     }
 

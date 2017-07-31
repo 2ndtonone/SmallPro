@@ -118,8 +118,8 @@
     <string name="taocan_lv_hintfive">服务器可选，全平台支持</string>
     <string name="taocan_lv_buy">购买</string>
     <string name="taocan_lv_taocantv_chu">初级</string>
-    <string name="taocan_lv_taocantv_flag">$</string>
-    <string name="taocan_lv_taocantv_money">25.99</string>
+    <string name="taocan_lv_taocantv_flag">￥</string>
+    <string name="taocan_lv_taocantv_money">225.99</string>
     <string name="taocan_lv_taocantv_day">/30天</string>
     <string name="taocan_lv_taocantv_gao">高级</string>
     <string name="taocan_lv_taocantv_moneying">149.99</string>

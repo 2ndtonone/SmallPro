@@ -3,6 +3,7 @@ package com.Funcgo.Outline.ui.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.util.ArrayMap;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -10,11 +11,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.Funcgo.Outline.LocationApplication;
 import com.Funcgo.Outline.R;
 import com.Funcgo.Outline.ui.views.CustomToast;
 import com.Funcgo.Outline.utils.AggAsyncHttpResponseHandler;
 import com.Funcgo.Outline.utils.Debug;
+import com.Funcgo.Outline.utils.SharePreUtil;
 import com.Funcgo.Outline.utils.StringUtils;
 import com.Funcgo.Outline.web.WebAPI;
 import com.kf5.sdk.system.entity.Field;
@@ -23,7 +24,6 @@ import com.kf5.sdk.system.init.UserInfoAPI;
 import com.kf5.sdk.system.internet.HttpRequestCallBack;
 import com.kf5.sdk.system.utils.SPUtils;
 import com.kf5.sdk.system.utils.SafeJson;
-import com.orhanobut.logger.TextUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -51,6 +51,10 @@ public class LoginActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_denglu);
         ButterKnife.bind(this);
+        if(!TextUtils.isEmpty(SharePreUtil.getStringData(this,"token",""))){
+            createOrLoginUser();
+            goHome();
+        }
     }
 
     @OnClick({R.id.bt_denglu, R.id.tv_zhuce, R.id.tv_forget_pwd})
@@ -73,7 +77,7 @@ public class LoginActivity extends BaseActivity {
     }
 
     private void login() {
-        String account = etAccount.getText().toString();
+        final String account = etAccount.getText().toString();
         String pwd = etPwd.getText().toString();
         if (TextUtils.isEmpty(etAccount.getText().toString())) {
             CustomToast.showToast("手机号或者邮箱不能为空");
@@ -104,8 +108,10 @@ public class LoginActivity extends BaseActivity {
                 try {
                     JSONObject object = new JSONObject(data);
                     JSONObject data1 = object.getJSONObject("data");
-                    LocationApplication.getInstance().setToken(data1.getString("api_token"));
+                    SharePreUtil.saveStringData(LoginActivity.this,"account",account);
+                    SharePreUtil.saveStringData(LoginActivity.this,"token",data1.getString("api_token"));
                     createOrLoginUser();
+                    goHome();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -116,7 +122,7 @@ public class LoginActivity extends BaseActivity {
     private void createOrLoginUser() {
 
         final Map<String, String> map = new ArrayMap<>();
-        String account = etAccount.getText().toString();
+        String account = SharePreUtil.getStringData(this,"account","");
         if (StringUtils.isMobileNO(account)) {
             map.put(ParamsKey.PHONE, account);
         } else {
@@ -142,7 +148,6 @@ public class LoginActivity extends BaseActivity {
                                     SPUtils.saveUserId(id);
                                     saveToken(map);
 
-                                    goHome();
                                 }
                             } else {
                                 runOnUiThread(new Runnable() {
@@ -190,7 +195,6 @@ public class LoginActivity extends BaseActivity {
                                     SPUtils.saveUserToken(userToken);
                                     SPUtils.saveUserId(id);
                                     saveToken(map);
-                                    goHome();
                                 }
                             } else {
                                 runOnUiThread(new Runnable() {
