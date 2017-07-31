@@ -32,7 +32,6 @@
             android:background="@drawable/denglu_et_round"
             android:hint="@string/denglu_phonenumber"
             android:padding="10dp"
-            android:text="13120362645"
             android:textColor="#fff"
             android:textColorHint="#66ffffff" />
 
@@ -45,7 +44,6 @@
             android:hint="@string/denglu_password"
             android:inputType="textPassword"
             android:padding="10dp"
-            android:text="cf19910918"
             android:textColor="#fff"
             android:textColorHint="#66ffffff" />
 

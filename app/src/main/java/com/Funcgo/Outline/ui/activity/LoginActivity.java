@@ -94,12 +94,12 @@ public class LoginActivity extends BaseActivity {
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //        }
-        if (account.equals("13120362645")) {
-            pwd = "rLIj5qbn4wDE6CVCvZKoWn0W43UsheDmmCH5PwIPwR8WU4qgO1KXirw20x+8h21kUYz+tRIrSvqD/s/CeB4uKdiJ0wIuqbIQkwWLHKgVQ63t0j6X33HEO7zvApI2GiIwaypJLokAiJJBvl/24gjQLW1cQJA+yGQHMT7VmzJKeng=";
-        }
-        if (account.equals("tyu880@sohu.com")) {
-            pwd = "nz2llKcoi9pFqALVcUYNCscB5QSf4kbsQvMG0EUC7x9sHFBdlBRjtmDZi3fnCy30CvzT49hScdMLkbXa6NSHvWfQKy6o0qoVC81WejNKzvyC54zMyzSxExOF0ovmB1IPz+HA0z3ryYdOR7EJ0moUAIpE/PNBOjbWL9EWyZIJNUg=";
-        }
+//        if (account.equals("13120362645")) {
+//            pwd = "rLIj5qbn4wDE6CVCvZKoWn0W43UsheDmmCH5PwIPwR8WU4qgO1KXirw20x+8h21kUYz+tRIrSvqD/s/CeB4uKdiJ0wIuqbIQkwWLHKgVQ63t0j6X33HEO7zvApI2GiIwaypJLokAiJJBvl/24gjQLW1cQJA+yGQHMT7VmzJKeng=";
+//        }
+//        if (account.equals("tyu880@sohu.com")) {
+//            pwd = "nz2llKcoi9pFqALVcUYNCscB5QSf4kbsQvMG0EUC7x9sHFBdlBRjtmDZi3fnCy30CvzT49hScdMLkbXa6NSHvWfQKy6o0qoVC81WejNKzvyC54zMyzSxExOF0ovmB1IPz+HA0z3ryYdOR7EJ0moUAIpE/PNBOjbWL9EWyZIJNUg=";
+//        }
         Debug.l("TAG", "pwd 后台的" + pwd);
 
         WebAPI.login(account, pwd, new AggAsyncHttpResponseHandler(this, new AggAsyncHttpResponseHandler.CallBack() {
