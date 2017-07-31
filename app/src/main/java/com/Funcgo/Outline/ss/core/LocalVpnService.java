@@ -201,7 +201,6 @@ public class LocalVpnService extends VpnService implements Runnable {
                         ProxyConfig.Instance.addProxyToList(ProxyUrl);
                         writeLog("Proxy is: %s", ProxyConfig.Instance.getDefaultProxy());
                     } catch (Exception e) {
-                        ;
                         String errString = e.getMessage();
                         if (errString == null || errString.isEmpty()) {
                             errString = e.toString();
@@ -393,7 +392,7 @@ public class LocalVpnService extends VpnService implements Runnable {
                 writeLog("Proxy All Apps");
             }
             for (AppInfo app : AppProxyManager.Instance.proxyAppInfo){
-                builder.addAllowedApplication("com.ah.ss."); //需要把自己加入代理，不然会无法进行网络连接
+                builder.addAllowedApplication("com.Funcgo.Outline"); //需要把自己加入代理，不然会无法进行网络连接
                 try{
                     builder.addAllowedApplication(app.getPkgName());
                     writeLog("Proxy App: " + app.getAppLabel());

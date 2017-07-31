@@ -24,7 +24,9 @@ import com.Funcgo.Outline.LocationApplication;
 import com.Funcgo.Outline.R;
 import com.Funcgo.Outline.entity.ServiceEntity;
 import com.Funcgo.Outline.entity.UserInfo;
+import com.Funcgo.Outline.ss.core.AppProxyManager;
 import com.Funcgo.Outline.ss.core.LocalVpnService;
+import com.Funcgo.Outline.ss.core.ProxyConfig;
 import com.Funcgo.Outline.ui.views.CustomToast;
 import com.Funcgo.Outline.ui.views.MyCircleProgressBar;
 import com.Funcgo.Outline.utils.AggAsyncHttpResponseHandler;
@@ -85,7 +87,11 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
 
         mCalendar = Calendar.getInstance();
         LocalVpnService.addOnStatusChangedListener(this);
+        ProxyConfig.Instance.globalMode = true;
         onLogReceived("Proxy global mode is on");
+        if (AppProxyManager.isLollipopOrAbove){
+            new AppProxyManager(this);
+        }
     }
 
     private void getData() {
@@ -111,6 +117,13 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
         LocalVpnService.ProxyUrl = ProxyUrl;
         startService(new Intent(this, LocalVpnService.class));
     }
+
+    @Override
+    protected void onDestroy() {
+        LocalVpnService.removeOnStatusChangedListener(this);
+        super.onDestroy();
+    }
+
 
 
     private void setupView(UserInfo userInfo) {
@@ -146,9 +159,8 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
                     userInfo.service_conf.method + ":" + userInfo.service_conf.pass +
                     "@" + userInfo.service_conf.service + ":" + userInfo.service_conf.port;
             Debug.l(getLogTag(),"---vpn URL--------"+url);
-            url = "ss://aes-256-cfb:Zxc950320@50.117.38.28:8831";
+            url = "ss://aes-256-cfb:Zxc950320@50.117.38.29:8831";
             setProxyUrl(url);
-            startVPNService();
         }
     }
 
@@ -243,12 +255,11 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
         }
     }
 
-    @OnClick({R.id.ll_service, R.id.iv_menus, R.id.ll_country})
+    @OnClick({R.id.ll_service, R.id.iv_menus, R.id.ll_country, R.id.iv_connect})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.ll_country:
-                Intent intent = new Intent(this, ShowCountry_Activity.class);
-                startActivityForResult(intent, 200);
+                startActivityForResult( new Intent(this, ShowCountry_Activity.class), 200);
                 break;
             case R.id.ll_service:
                 startActivity(new Intent(this, MainActivity.class));
@@ -256,24 +267,42 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
             case R.id.iv_menus:
                 dl.openDrawer(GravityCompat.START);
                 break;
+            case R.id.iv_connect:
+                Intent intent = LocalVpnService.prepare(this);
+                if (intent == null) {
+                    startVPNService();
+                } else {
+                    startActivityForResult(intent, START_VPN_SERVICE_REQUEST_CODE);
+                }
+
+                break;
         }
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK && requestCode == 200) {
-            ServiceEntity.DataBean entity = (ServiceEntity.DataBean) data.getSerializableExtra("entity");
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == START_VPN_SERVICE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                startVPNService();
+            } else {
+                onLogReceived("canceled.");
+            }
+            return;
+        }else if (resultCode == RESULT_OK && requestCode == 200) {
+            ServiceEntity.DataBean entity = (ServiceEntity.DataBean) intent.getSerializableExtra("entity");
             tvCurrent.setText(entity.country_service);
             // TODO 配置SS
 
-            String url = "ss://" + entity.method + ":" + entity.pass +
-                    "@" + entity.service + ":" + entity.port;
-            setProxyUrl(url);
-            Debug.l(getLogTag(),"---vpn URL--------"+url);
-            startVPNService();
+//            String url = "ss://" + entity.method + ":" + entity.pass +
+//                    "@" + entity.service + ":" + entity.port;
+//            setProxyUrl(url);
+//            Debug.l(getLogTag(),"---vpn URL--------"+url);
+//            startVPNService();
         }
+        super.onActivityResult(requestCode, resultCode, intent);
     }
+
+
 
     @Override
     public void onStatusChanged(String status, Boolean isRunning) {
