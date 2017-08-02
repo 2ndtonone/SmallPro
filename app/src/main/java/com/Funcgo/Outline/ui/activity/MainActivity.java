@@ -16,6 +16,7 @@ import com.Funcgo.Outline.R;
 import com.Funcgo.Outline.alipay.PayResult;
 import com.Funcgo.Outline.entity.ServiceList;
 import com.Funcgo.Outline.eventbus.AlipaySuccessEvent;
+import com.Funcgo.Outline.ui.views.CustomToast;
 import com.Funcgo.Outline.ui.views.viewpagercards.CardFragmentPagerAdapter;
 import com.Funcgo.Outline.ui.views.viewpagercards.CardPagerAdapter;
 import com.Funcgo.Outline.ui.views.viewpagercards.ShadowTransformer;
@@ -62,6 +63,17 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                      */
                     String resultInfo = payResult.getResult();// 同步返回需要验证的信息
                     String resultStatus = payResult.getResultStatus();
+                    String trade_no = "";
+                    try {
+                        JSONObject resultObject = new JSONObject(resultInfo);
+                        JSONObject alipay_trade_app_pay_response = resultObject.getJSONObject("alipay_trade_app_pay_response");
+                        trade_no = alipay_trade_app_pay_response.getString("trade_no");
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        CustomToast.showToast("获取交易号失败，请联系客服");
+                        return;
+                    }
                     // 判断resultStatus 为9000则代表支付成功
                     if (TextUtils.equals(resultStatus, "9000")) {
                         // 该笔订单是否真实支付成功，需要依赖服务端的异步通知。
@@ -70,7 +82,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                         WebAPI.sendAlipaySuccess(
                                 SharePreUtil.getStringData(MainActivity.this, "token", ""),
                                 orderId,
-                                payResult.getResult(),
+                                trade_no,
                                 new AggAsyncHttpResponseHandler(
                                         MainActivity.this,
                                         new AggAsyncHttpResponseHandler.CallBack() {
