@@ -12,7 +12,6 @@ import com.Funcgo.Outline.R;
 import com.Funcgo.Outline.ui.dialog.LoadingProgressDialog;
 import com.Funcgo.Outline.utils.Debug;
 import com.Funcgo.Outline.utils.SystemBarTintManager;
-import com.Funcgo.Outline.utils.Utility;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -128,11 +127,11 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void initStatusBarColor() {
         mBarTintManager.setStatusBarTintEnabled(true);
         mBarTintManager.setStatusBarTintColor(getStatusBarColor());
-        if (Utility.isMIUI()) {
-            SystemBarTintManager.setMiuiStatusBarDarkMode(this, true);
-        } else if (Utility.isFlyme()) {
-            SystemBarTintManager.setMeizuStatusBarDarkMode(this, true);
-        }
+//        if (Utility.isMIUI()) {
+//            SystemBarTintManager.setMiuiStatusBarDarkMode(this, true);
+//        } else if (Utility.isFlyme()) {
+//            SystemBarTintManager.setMeizuStatusBarDarkMode(this, true);
+//        }
     }
 
     public int getStatusBarColor() {

@@ -1,9 +1,13 @@
 package com.Funcgo.Outline.ui.activity;
 
 import android.annotation.SuppressLint;
+import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.net.Uri;
@@ -13,14 +17,15 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.Funcgo.Outline.LocationApplication;
 import com.Funcgo.Outline.R;
 import com.Funcgo.Outline.entity.ServiceEntity;
 import com.Funcgo.Outline.entity.UserInfo;
@@ -79,10 +84,10 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
     TextView tvState;
     @BindView(R.id.nav_view)
     NavigationView navView;
-    @BindView(R.id.activity_gif_giv )
-    GifImageView mGifImageView ;
-    @BindView(R.id.fl_connect )
-    FrameLayout fl_connect ;
+    @BindView(R.id.activity_gif_giv)
+    GifImageView mGifImageView;
+    @BindView(R.id.fl_connect)
+    FrameLayout fl_connect;
 
     ImageView iv_head;
     TextView tv_name;
@@ -108,7 +113,7 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
         LocalVpnService.addOnStatusChangedListener(this);
         ProxyConfig.Instance.globalMode = true;
         onLogReceived("Proxy global mode is on");
-        if (AppProxyManager.isLollipopOrAbove){
+        if (AppProxyManager.isLollipopOrAbove) {
             new AppProxyManager(this);
             AppProxyManager.Instance.removeProxyApp("com.Funcgo.Outline");
         }
@@ -139,7 +144,7 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
     }
 
     private void getData() {
-        WebAPI.getUserInfo(SharePreUtil.getStringData(this,"token",""), new AggAsyncHttpResponseHandler(this, new AggAsyncHttpResponseHandler.CallBack() {
+        WebAPI.getUserInfo(SharePreUtil.getStringData(this, "token", ""), new AggAsyncHttpResponseHandler(this, new AggAsyncHttpResponseHandler.CallBack() {
             @Override
             public void onSuccess(String data) {
 
@@ -164,24 +169,52 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
 
     @Override
     protected void onDestroy() {
+        LogUtils.i(getLogTag(), "onDestroy");
         LocalVpnService.removeOnStatusChangedListener(this);
         EventBus.getDefault().unregister(this);
         super.onDestroy();
     }
 
-    public void onEventMainThread(AlipaySuccessEvent event){
+    public void onEventMainThread(AlipaySuccessEvent event) {
         getData();
     }
 
-    @Override
-    public void onBackPressed() {
-//        super.onBackPressed();
-        Intent mHomeIntent = new Intent(Intent.ACTION_MAIN);
+    //    @Override
+//    public void onBackPressed() {
+////        super.onBackPressed();
+//        Intent intent=new Intent();
+//        intent.setAction("android.intent.action.MAIN");
+//        intent.addCategory("android.intent.category.HOME");
+//        intent.addCategory("android.intent.category.DEFAULT");
+//        intent.addCategory("android.intent.category.MONKEY");
+//        startActivity(intent);
+//    }
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        PackageManager pm = getPackageManager();
+        ResolveInfo homeInfo =
+                pm.resolveActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0);
+        if (keyCode == KeyEvent.KEYCODE_BACK){
+            ActivityInfo ai = homeInfo.activityInfo;
+            Intent startIntent = new Intent(Intent.ACTION_MAIN);
+            startIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+            startIntent.setComponent(new ComponentName(ai.packageName, ai.name));
+            startActivitySafely(startIntent);
+            return true;
+        } else
+            return super.onKeyDown(keyCode, event);
+    }
 
-        mHomeIntent.addCategory(Intent.CATEGORY_HOME);
-        mHomeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-        startActivity(mHomeIntent);
+    private void startActivitySafely(Intent intent) {
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        try {
+            startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(this, "null",
+                    Toast.LENGTH_SHORT).show();
+        } catch (SecurityException e) {
+            Toast.makeText(this, "null",
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void setupView(UserInfo userInfo) {
@@ -219,7 +252,7 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
             String url = "ss://" +
                     userInfo.service_conf.method + ":" + userInfo.service_conf.pass +
                     "@" + userInfo.service_conf.service + ":" + userInfo.service_conf.port;
-            Debug.l(getLogTag(),"---vpn URL--------"+url);
+            Debug.l(getLogTag(), "---vpn URL--------" + url);
             url = "ss://aes-256-cfb:Zxc950320@50.117.38.29:8831";
             setProxyUrl(url);
         }
@@ -256,8 +289,8 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
                         finish();
                         SPUtils.clearSP();
                         LocalVpnService.IsRunning = false;
-                        SharePreUtil.deleteStringData(Shouye_Activity.this,"token");
-                        SharePreUtil.deleteStringData(Shouye_Activity.this,"account");
+                        SharePreUtil.deleteStringData(Shouye_Activity.this, "token");
+                        SharePreUtil.deleteStringData(Shouye_Activity.this, "account");
                         Intent intent = new Intent(Shouye_Activity.this, LoginActivity.class);
                         startActivity(intent);
 
@@ -321,7 +354,7 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.ll_country:
-                startActivityForResult( new Intent(this, ShowCountry_Activity.class), 200);
+                startActivityForResult(new Intent(this, ShowCountry_Activity.class), 200);
                 break;
             case R.id.ll_service:
                 startActivity(new Intent(this, MainActivity.class));
@@ -330,10 +363,11 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
                 dl.openDrawer(GravityCompat.START);
                 break;
             case R.id.fl_connect:
-                if(isVip){
-                    if(isConnect){
+                LogUtils.i(getLogTag(), "点击按钮");
+                if (isVip) {
+                    if (isConnect) {
                         LocalVpnService.IsRunning = false;
-                    }else {
+                    } else {
                         Intent intent = LocalVpnService.prepare(this);
                         if (intent == null) {
                             startVPNService();
@@ -341,7 +375,7 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
                             startActivityForResult(intent, START_VPN_SERVICE_REQUEST_CODE);
                         }
                     }
-                }else {
+                } else {
                     CustomToast.showToast("请购买套餐");
                 }
 
@@ -359,7 +393,7 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
                 onLogReceived("canceled.");
             }
             return;
-        }else if (resultCode == RESULT_OK && requestCode == 200) {
+        } else if (resultCode == RESULT_OK && requestCode == 200) {
             ServiceEntity.DataBean entity = (ServiceEntity.DataBean) intent.getSerializableExtra("entity");
             tvCurrent.setText(entity.country_service);
             // TODO 配置SS
@@ -372,7 +406,6 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
         }
         super.onActivityResult(requestCode, resultCode, intent);
     }
-
 
 
     @Override
@@ -390,8 +423,8 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
                 mCalendar.get(Calendar.MINUTE),
                 mCalendar.get(Calendar.SECOND),
                 logString);
-        LogUtils.i(getLogTag(),logString);
-        if(logString.contains("starting")){
+        LogUtils.i(getLogTag(), logString);
+        if (logString.contains("starting")) {
             isConnect = true;
             iv_out.setVisibility(View.GONE);
             iv_inner.setVisibility(View.GONE);
@@ -399,19 +432,19 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
             try {
                 GifDrawable gifDrawable = new GifDrawable(getAssets(), "connect_connecting2.gif");
                 mGifImageView.setImageDrawable(gifDrawable);
-            }catch (Exception e){
+            } catch (Exception e) {
 
             }
-        }else if(logString.contains("已连接")){
+        } else if (logString.contains("已连接")) {
             isConnect = true;
             try {
                 GifDrawable gifDrawable = new GifDrawable(getAssets(), "connect_connected.gif");
                 mGifImageView.setImageDrawable(gifDrawable);
-            }catch (Exception e){
+            } catch (Exception e) {
 
             }
 
-        }else if(logString.contains("已断开")){
+        } else if (logString.contains("已断开")) {
             isConnect = false;
             iv_out.setVisibility(View.VISIBLE);
             iv_inner.setVisibility(View.VISIBLE);
@@ -419,7 +452,7 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
             try {
                 GifDrawable gifDrawable = new GifDrawable(getAssets(), "connect_connecting1.gif");
                 mGifImageView.setImageDrawable(gifDrawable);
-            }catch (Exception e){
+            } catch (Exception e) {
 
             }
 

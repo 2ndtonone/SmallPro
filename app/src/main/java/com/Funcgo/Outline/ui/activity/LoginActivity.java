@@ -15,6 +15,7 @@ import com.Funcgo.Outline.R;
 import com.Funcgo.Outline.ui.views.CustomToast;
 import com.Funcgo.Outline.utils.AggAsyncHttpResponseHandler;
 import com.Funcgo.Outline.utils.Debug;
+import com.Funcgo.Outline.utils.LogUtils;
 import com.Funcgo.Outline.utils.SharePreUtil;
 import com.Funcgo.Outline.utils.StringUtils;
 import com.Funcgo.Outline.web.WebAPI;
@@ -52,6 +53,7 @@ public class LoginActivity extends BaseActivity {
         setContentView(R.layout.activity_denglu);
         ButterKnife.bind(this);
         if(!TextUtils.isEmpty(SharePreUtil.getStringData(this,"token",""))){
+            LogUtils.i(getLogTag(),"---自动登录--");
             createOrLoginUser();
             goHome();
         }

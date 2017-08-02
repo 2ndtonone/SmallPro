@@ -25,6 +25,7 @@
     <color name="main_orange">#ff9e05</color>
     <color name="main_green">#43bfa4</color>
     <color name="main_red">#ff4946</color>
+    <color name="main_blue">#3F51B5</color>
     <color name="main_red_light">#d42d2e</color>
     <color name="main_red_dark">#b51e1f</color>
     <color name="orange_light">#88ff9c00</color>
