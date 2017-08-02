@@ -110,6 +110,7 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
         onLogReceived("Proxy global mode is on");
         if (AppProxyManager.isLollipopOrAbove){
             new AppProxyManager(this);
+            AppProxyManager.Instance.removeProxyApp("com.Funcgo.Outline");
         }
     }
 
