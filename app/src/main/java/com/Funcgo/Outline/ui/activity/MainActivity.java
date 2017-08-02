@@ -15,10 +15,12 @@ import android.widget.Toast;
 import com.Funcgo.Outline.R;
 import com.Funcgo.Outline.alipay.PayResult;
 import com.Funcgo.Outline.entity.ServiceList;
+import com.Funcgo.Outline.eventbus.AlipaySuccessEvent;
 import com.Funcgo.Outline.ui.views.viewpagercards.CardFragmentPagerAdapter;
 import com.Funcgo.Outline.ui.views.viewpagercards.CardPagerAdapter;
 import com.Funcgo.Outline.ui.views.viewpagercards.ShadowTransformer;
 import com.Funcgo.Outline.utils.AggAsyncHttpResponseHandler;
+import com.Funcgo.Outline.utils.LogUtils;
 import com.Funcgo.Outline.utils.SharePreUtil;
 import com.Funcgo.Outline.web.WebAPI;
 import com.alipay.sdk.app.PayTask;
@@ -28,6 +30,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Map;
+
+import de.greenrobot.event.EventBus;
 
 public class MainActivity extends BaseActivity implements View.OnClickListener,
         CompoundButton.OnCheckedChangeListener {
@@ -42,6 +46,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
     private boolean mShowingFragments = false;
     private ServiceList serviceList;
     private static final int SDK_PAY_FLAG = 1;
+    String orderId = "";
 
     @SuppressLint("HandlerLeak")
     private Handler mHandler = new Handler() {
@@ -51,6 +56,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                 case SDK_PAY_FLAG: {
                     @SuppressWarnings("unchecked")
                     PayResult payResult = new PayResult((Map<String, String>) msg.obj);
+                    LogUtils.i(getLogTag(), "支付成功：：：" + msg.obj);
                     /**
                      对于支付结果，请商户依赖服务端的异步通知结果。同步通知结果，仅作为支付结束的通知。
                      */
@@ -60,6 +66,19 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                     if (TextUtils.equals(resultStatus, "9000")) {
                         // 该笔订单是否真实支付成功，需要依赖服务端的异步通知。
                         Toast.makeText(MainActivity.this, "支付成功", Toast.LENGTH_SHORT).show();
+                        EventBus.getDefault().post(new AlipaySuccessEvent());
+                        WebAPI.sendAlipaySuccess(
+                                SharePreUtil.getStringData(MainActivity.this, "token", ""),
+                                orderId,
+                                payResult.getResult(),
+                                new AggAsyncHttpResponseHandler(
+                                        MainActivity.this,
+                                        new AggAsyncHttpResponseHandler.CallBack() {
+                                            @Override
+                                            public void onSuccess(String data) {
+
+                                            }
+                                        }));
                     } else {
                         // 该笔订单真实的支付结果，需要依赖服务端的异步通知。
                         Toast.makeText(MainActivity.this, "支付失败", Toast.LENGTH_SHORT).show();
@@ -79,7 +98,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
     }
 
     private void getData() {
-        WebAPI.getServiceList(SharePreUtil.getStringData(this,"token",""), new AggAsyncHttpResponseHandler(this, new AggAsyncHttpResponseHandler.CallBack() {
+        WebAPI.getServiceList(SharePreUtil.getStringData(this, "token", ""), new AggAsyncHttpResponseHandler(this, new AggAsyncHttpResponseHandler.CallBack() {
             @Override
             public void onSuccess(String data) {
                 serviceList = new Gson().fromJson(data, ServiceList.class);
@@ -119,7 +138,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
     }
 
     private void pay(int id) {
-        WebAPI.pay(SharePreUtil.getStringData(this,"token",""), id, new AggAsyncHttpResponseHandler(this, new AggAsyncHttpResponseHandler.CallBack() {
+        WebAPI.pay(SharePreUtil.getStringData(this, "token", ""), id, new AggAsyncHttpResponseHandler(this, new AggAsyncHttpResponseHandler.CallBack() {
             @Override
             public void onSuccess(String data) {
                 try {
@@ -135,6 +154,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                             PayTask alipay = new PayTask(MainActivity.this);
                             Map<String, String> result = alipay.payV2(app_response, true);
                             Log.i("msp", result.toString());
+
 
                             Message msg = new Message();
                             msg.what = SDK_PAY_FLAG;

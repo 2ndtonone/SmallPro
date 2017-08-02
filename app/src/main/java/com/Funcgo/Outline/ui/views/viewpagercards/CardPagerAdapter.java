@@ -108,6 +108,7 @@ public class CardPagerAdapter extends PagerAdapter implements CardAdapter {
 
         final TextView tv_level = (TextView) view.findViewById(R.id.tv_level);
         final TextView tv_money = (TextView) view.findViewById(R.id.tv_money);
+        final TextView tv_days = (TextView) view.findViewById(R.id.tv_days);
 
         checkItemSupport(item.description.get(0),tv_desc1,iv_1);
         checkItemSupport(item.description.get(1),tv_desc2,iv_2);
@@ -116,6 +117,7 @@ public class CardPagerAdapter extends PagerAdapter implements CardAdapter {
         checkItemSupport(item.description.get(4),tv_desc5,iv_5);
         tv_level.setText(item.level);
         tv_money.setText(item.sale_price);
+        tv_days.setText("/"+item.service_time+"天");
 
         if (i == 0) {
             ll_top.setBackgroundColor(Color.parseColor("#FF16DD8D"));

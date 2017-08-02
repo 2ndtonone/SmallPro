@@ -31,6 +31,7 @@
             android:layout_height="40dp"
             android:background="@drawable/denglu_et_round"
             android:hint="@string/denglu_phonenumber"
+            android:text="1300012920@pku.edu.cn"
             android:padding="10dp"
             android:textColor="#fff"
             android:textColorHint="#66ffffff" />
@@ -43,6 +44,7 @@
             android:background="@drawable/denglu_et_round"
             android:hint="@string/denglu_password"
             android:inputType="textPassword"
+            android:text="123456"
             android:padding="10dp"
             android:textColor="#fff"
             android:textColorHint="#66ffffff" />

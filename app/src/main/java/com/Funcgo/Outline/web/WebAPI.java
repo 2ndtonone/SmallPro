@@ -114,4 +114,15 @@ public class WebAPI {
         params.put("verify_code", code);
         post(operator, params, handler);
     }
+
+    public static void sendAlipaySuccess(String token, String order_id, String trade_no, IResponseHandler handler) {
+        String operator = "returnalipay";
+        WebParam params = new WebParam();
+        params.put("api_token", token);
+        params.put("order_id", order_id);
+        params.put("trade_no", trade_no);
+        post(operator, params, handler);
+
+
+    }
 }

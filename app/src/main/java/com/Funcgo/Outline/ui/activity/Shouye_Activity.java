@@ -15,6 +15,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -23,6 +24,7 @@ import com.Funcgo.Outline.LocationApplication;
 import com.Funcgo.Outline.R;
 import com.Funcgo.Outline.entity.ServiceEntity;
 import com.Funcgo.Outline.entity.UserInfo;
+import com.Funcgo.Outline.eventbus.AlipaySuccessEvent;
 import com.Funcgo.Outline.ss.core.AppProxyManager;
 import com.Funcgo.Outline.ss.core.LocalVpnService;
 import com.Funcgo.Outline.ss.core.ProxyConfig;
@@ -48,6 +50,7 @@ import java.util.Date;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import de.greenrobot.event.EventBus;
 import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
 
@@ -78,6 +81,8 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
     NavigationView navView;
     @BindView(R.id.activity_gif_giv )
     GifImageView mGifImageView ;
+    @BindView(R.id.fl_connect )
+    FrameLayout fl_connect ;
 
     ImageView iv_head;
     TextView tv_name;
@@ -87,12 +92,14 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
     private Calendar mCalendar;
 
     private boolean isConnect = false;
+    private boolean isVip = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shouye);
         ButterKnife.bind(this);
+        EventBus.getDefault().register(this);
         initView();
         getData();
 //        initGif();
@@ -157,9 +164,13 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
     @Override
     protected void onDestroy() {
         LocalVpnService.removeOnStatusChangedListener(this);
+        EventBus.getDefault().unregister(this);
         super.onDestroy();
     }
 
+    public void onEventMainThread(AlipaySuccessEvent event){
+        getData();
+    }
 
     @Override
     public void onBackPressed() {
@@ -177,6 +188,7 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
         Utility.loadImg(iv_head, userInfo.headimgurl);
         if (userInfo.user_order != null) {
             try {
+                isVip = true;
                 long currentTiem = new Date().getTime() / 1000;
                 long less = userInfo.user_order.service_time - currentTiem;
                 String lessDay = (less / 3600 / 24 + 1) + "";
@@ -189,12 +201,14 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
                 float progress = less * 100 / total + 1;
                 progressBar.setProgress((int) progress);
             } catch (Exception e) {
+                isVip = false;
                 e.printStackTrace();
                 progressBar.setProgress(0);
                 CustomToast.showToast("当前服务已到期，请购买新的套餐");
             }
             tvState.setText(userInfo.user_order.level);
         } else {
+            isVip = false;
             progressBar.setProgress(0);
             tvState.setText("试用套餐");
         }
@@ -223,14 +237,12 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
                 dl.closeDrawers();
+                item.setCheckable(false);
                 switch (item.getItemId()) {
                     case R.id.it_buy:
-
                         Intent intentTheme = new Intent(Shouye_Activity.this, MainActivity.class);
                         startActivity(intentTheme);
                         break;
-
-
                     case R.id.it_seriver:
                         Intent aboutTheme = new Intent(Shouye_Activity.this, ServiceActivity.class);
                         startActivity(aboutTheme);
@@ -317,16 +329,22 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
                 dl.openDrawer(GravityCompat.START);
                 break;
             case R.id.fl_connect:
-                if(isConnect){
-                    LocalVpnService.IsRunning = false;
-                }else {
-                    Intent intent = LocalVpnService.prepare(this);
-                    if (intent == null) {
-                        startVPNService();
-                    } else {
-                        startActivityForResult(intent, START_VPN_SERVICE_REQUEST_CODE);
+                if(isVip){
+                    if(isConnect){
+                        LocalVpnService.IsRunning = false;
+                    }else {
+                        Intent intent = LocalVpnService.prepare(this);
+                        if (intent == null) {
+                            startVPNService();
+                        } else {
+                            startActivityForResult(intent, START_VPN_SERVICE_REQUEST_CODE);
+                        }
                     }
+                }else {
+                    CustomToast.showToast("请购买套餐");
                 }
+
+
                 break;
         }
     }
@@ -373,6 +391,7 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
                 logString);
         LogUtils.i(getLogTag(),logString);
         if(logString.contains("starting")){
+            isConnect = true;
             iv_out.setVisibility(View.GONE);
             iv_inner.setVisibility(View.GONE);
             mGifImageView.setVisibility(View.VISIBLE);
