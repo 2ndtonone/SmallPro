@@ -47,7 +47,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
     private boolean mShowingFragments = false;
     private ServiceList serviceList;
     private static final int SDK_PAY_FLAG = 1;
-    String orderId = "";
+    int orderId = -1;
 
     @SuppressLint("HandlerLeak")
     private Handler mHandler = new Handler() {
@@ -78,7 +78,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                     if (TextUtils.equals(resultStatus, "9000")) {
                         // 该笔订单是否真实支付成功，需要依赖服务端的异步通知。
                         Toast.makeText(MainActivity.this, "支付成功", Toast.LENGTH_SHORT).show();
-                        EventBus.getDefault().post(new AlipaySuccessEvent());
                         WebAPI.sendAlipaySuccess(
                                 SharePreUtil.getStringData(MainActivity.this, "token", ""),
                                 orderId,
@@ -88,7 +87,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                                         new AggAsyncHttpResponseHandler.CallBack() {
                                             @Override
                                             public void onSuccess(String data) {
-
+                                                EventBus.getDefault().post(new AlipaySuccessEvent());
+                                                finish();
                                             }
                                         }));
                     } else {
@@ -114,6 +114,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
             @Override
             public void onSuccess(String data) {
                 serviceList = new Gson().fromJson(data, ServiceList.class);
+                orderId = serviceList.data.get(0).id;
                 for (ServiceList.DataBean datum : serviceList.data) {
                     mCardAdapter.addCardItem(datum);
                 }
@@ -150,6 +151,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
     }
 
     private void pay(int id) {
+        orderId = id;
         WebAPI.pay(SharePreUtil.getStringData(this, "token", ""), id, new AggAsyncHttpResponseHandler(this, new AggAsyncHttpResponseHandler.CallBack() {
             @Override
             public void onSuccess(String data) {

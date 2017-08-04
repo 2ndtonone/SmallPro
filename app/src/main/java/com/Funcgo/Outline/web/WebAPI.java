@@ -115,7 +115,7 @@ public class WebAPI {
         post(operator, params, handler);
     }
 
-    public static void sendAlipaySuccess(String token, String order_id, String trade_no, IResponseHandler handler) {
+    public static void sendAlipaySuccess(String token, int order_id, String trade_no, IResponseHandler handler) {
         String operator = "returnalipay";
         WebParam params = new WebParam();
         params.put("api_token", token);
