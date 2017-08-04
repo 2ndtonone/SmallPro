@@ -22,7 +22,7 @@
 
         <TextView
             android:layout_width="wrap_content"
-            android:text="求换线路"
+            android:text="切换线路"
             android:layout_centerInParent="true"
             android:textSize="18sp"
             android:textColor="#fff"

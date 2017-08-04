@@ -15,23 +15,14 @@ public class UpdateInfo extends SimpleResult1 {
     }
 
     public static class DataEntity {
-        public String android_update_info;
-        public String mobile_apk;
-        public String mobile_ios;
-        public int mobile_apk_force_version;
-        public int mobile_apk_version;
-        public String service_telephone;
-        public String area_version;
-        public String share_default_pic;
+        public String type;
+        public String version;
 
         @Override
         public String toString() {
             return "DataEntity{" +
-                    "android_update_info='" + android_update_info + '\'' +
-                    "mobile_apk='" + mobile_apk + '\'' +
-                    ", mobile_apk_force_version='" + mobile_apk_force_version + '\'' +
-                    ", mobile_apk_version='" + mobile_apk_version + '\'' +
-                    ", mobile_ios='" + mobile_ios + '\'' +
+                    "type='" + type + '\'' +
+                    "version='" + version + '\'' +
                     '}';
         }
     }

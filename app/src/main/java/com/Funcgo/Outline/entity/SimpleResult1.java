@@ -2,8 +2,6 @@ package com.Funcgo.Outline.entity;
 
 import com.Funcgo.Outline.utils.ConstantUtils;
 
-import org.json.JSONObject;
-
 import java.io.Serializable;
 
 /**
@@ -16,7 +14,6 @@ public class SimpleResult1 implements Serializable {
     private static final int STATUS_OK = 200;
     public int ret;
     public String msg;
-    public JSONObject data;
 
     public SimpleResult1() {
     }

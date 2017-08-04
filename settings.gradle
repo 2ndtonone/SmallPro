@@ -1,4 +1,4 @@
-include ':app', ':logger', ':ptr-lib', ':kf5sdkModule'
+include ':app', ':logger', ':ptr-lib', ':kf5sdkModule', ':AppUpdate'
 include ':async-http'
 include ':LoadMoreLib'
 

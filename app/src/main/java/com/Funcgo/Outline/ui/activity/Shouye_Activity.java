@@ -33,15 +33,17 @@ import com.Funcgo.Outline.eventbus.AlipaySuccessEvent;
 import com.Funcgo.Outline.ss.core.AppProxyManager;
 import com.Funcgo.Outline.ss.core.LocalVpnService;
 import com.Funcgo.Outline.ss.core.ProxyConfig;
-import com.Funcgo.Outline.ui.views.CustomToast;
+import com.Funcgo.Outline.ui.dialog.CommonDialogFragment;
 import com.Funcgo.Outline.ui.views.MyCircleProgressBar;
 import com.Funcgo.Outline.utils.AggAsyncHttpResponseHandler;
+import com.Funcgo.Outline.utils.AppUpdateChecker;
 import com.Funcgo.Outline.utils.Debug;
 import com.Funcgo.Outline.utils.LogUtils;
 import com.Funcgo.Outline.utils.SharePreUtil;
 import com.Funcgo.Outline.utils.Utility;
 import com.Funcgo.Outline.web.WebAPI;
 import com.google.gson.Gson;
+import com.hk.lib.appupdate.AppUpdateManager;
 import com.kf5.sdk.im.ui.KF5ChatActivity;
 import com.kf5.sdk.system.utils.SPUtils;
 
@@ -117,6 +119,7 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
             new AppProxyManager(this);
             AppProxyManager.Instance.removeProxyApp("com.Funcgo.Outline");
         }
+        checkAppUpdate();
     }
 
     private void initGif() {
@@ -160,6 +163,19 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
         }));
     }
 
+    private void checkAppUpdate() {
+        AppUpdateChecker.checkUpdate(this,false, new AppUpdateChecker.Callback() {
+            @Override
+            public void onSuccess() {
+                AppUpdateManager.showAppUpdateDialogIfNeed(Shouye_Activity.this, true);
+            }
+
+            @Override
+            public void onFinish() {
+            }
+        });
+    }
+
     private void startVPNService() {
         String ProxyUrl = readProxyUrl();
         onLogReceived("starting...");
@@ -179,16 +195,6 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
         getData();
     }
 
-    //    @Override
-//    public void onBackPressed() {
-////        super.onBackPressed();
-//        Intent intent=new Intent();
-//        intent.setAction("android.intent.action.MAIN");
-//        intent.addCategory("android.intent.category.HOME");
-//        intent.addCategory("android.intent.category.DEFAULT");
-//        intent.addCategory("android.intent.category.MONKEY");
-//        startActivity(intent);
-//    }
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         PackageManager pm = getPackageManager();
         ResolveInfo homeInfo =
@@ -238,7 +244,7 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
                 isVip = false;
                 e.printStackTrace();
                 progressBar.setProgress(0);
-                CustomToast.showToast("当前服务已到期，请购买新的套餐");
+                showTimeOverDialog();
             }
             tvState.setText(userInfo.user_order.level);
         } else {
@@ -258,6 +264,28 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
         }
     }
 
+    private void showTimeOverDialog() {
+        new CommonDialogFragment.Builder()
+                .setContentText("服务到期，请续费")
+                .setLeftButtonText("取消")
+                .setLeftButtonClickListener(new CommonDialogFragment.OnClickListener() {
+                    @Override
+                    public void onClick(CommonDialogFragment dialogFragment, int which) {
+                        dialogFragment.dismiss();
+                    }
+                })
+                .setRightButtonText("续费")
+                .setRightButtonClickListener(new CommonDialogFragment.OnClickListener() {
+                    @Override
+                    public void onClick(CommonDialogFragment dialogFragment, int which) {
+                        startActivity(new Intent(Shouye_Activity.this,MainActivity.class));
+                        dialogFragment.dismiss();
+                    }
+                })
+                .create()
+                .show(getSupportFragmentManager());
+    }
+
     private void initView() {
         View headerView = navView.getHeaderView(0);
         iv_head = (ImageView) headerView.findViewById(R.id.iv_head);
@@ -274,14 +302,11 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
                 item.setCheckable(false);
                 switch (item.getItemId()) {
                     case R.id.it_buy:
-                        Intent intentTheme = new Intent(Shouye_Activity.this, MainActivity.class);
-                        startActivity(intentTheme);
+                        startActivity(new Intent(Shouye_Activity.this, MainActivity.class));
                         break;
                     case R.id.it_seriver:
-                        Intent aboutTheme = new Intent(Shouye_Activity.this, ServiceActivity.class);
-                        startActivity(aboutTheme);
+                        startActivity(new Intent(Shouye_Activity.this, ServiceActivity.class));
                         break;
-
                     case R.id.it_callus:
                         startActivity(new Intent(Shouye_Activity.this, KF5ChatActivity.class));
                         break;
@@ -293,9 +318,7 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
                         SharePreUtil.deleteStringData(Shouye_Activity.this, "account");
                         Intent intent = new Intent(Shouye_Activity.this, LoginActivity.class);
                         startActivity(intent);
-
                         break;
-
                 }
                 return true;
             }
@@ -376,7 +399,7 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
                         }
                     }
                 } else {
-                    CustomToast.showToast("请购买套餐");
+                    showTimeOverDialog();
                 }
 
 
@@ -411,7 +434,6 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
     @Override
     public void onStatusChanged(String status, Boolean isRunning) {
         onLogReceived(status);
-//        Toast.makeText(this, status, Toast.LENGTH_SHORT).show();
     }
 
     @SuppressLint("DefaultLocale")

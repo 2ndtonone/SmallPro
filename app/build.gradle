@@ -42,7 +42,7 @@ android {
         debug {
             buildConfigField "boolean", "PRINT_LOG", "true"
             buildConfigField "String", "SERVER_TYPE", '"testshop"'
-            versionNameSuffix "1"
+//            versionNameSuffix "1"
             signingConfig signingConfigs.release
 //            testCoverageEnabled true
         }
@@ -65,7 +65,7 @@ android {
         javaMaxHeapSize "2g"
     }
 
-    /** Rename output file names */
+  /*  *//** Rename output file names *//*
     applicationVariants.all { variant ->
         variant.outputs.each { output ->
             // 更改最终apk命名
@@ -117,12 +117,7 @@ android {
                 }
             }
         }
-    }
-    productFlavors {
-        yingyongbao {
-            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "yingyongbao"]
-        }
-    }
+    }*/
 
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES.txt'
@@ -173,6 +168,7 @@ dependencies {
     compile project(':ptr-lib')
     compile project(':async-http')
     compile project(':LoadMoreLib')
+    compile project(':AppUpdate')
 
     compile project(':kf5sdkModule')
 }

@@ -21,13 +21,10 @@ public class WebAPI {
     }
 
     public static void getCheckUpdatePost(IResponseHandler handler) {
-        String operator = "";
+        String operator = "version";
         WebParam params = new WebParam();
+        params.put("type","Android");
         get(operator, params, handler);
-    }
-
-    public static void getAreaData(IResponseHandler handler) {
-
     }
 
     public static void login(String account, String pwd, IResponseHandler handler) {

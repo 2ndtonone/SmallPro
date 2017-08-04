@@ -32,7 +32,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Parcelable;
-import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v4.content.PermissionChecker;
@@ -44,7 +43,6 @@ import android.text.TextUtils;
 import android.text.style.ImageSpan;
 import android.util.Base64;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
@@ -54,7 +52,6 @@ import android.widget.TextView;
 import com.Funcgo.Outline.BuildConfig;
 import com.Funcgo.Outline.LocationApplication;
 import com.Funcgo.Outline.R;
-import com.Funcgo.Outline.entity.AllAreaDataItem;
 import com.Funcgo.Outline.ui.activity.SplashActivity;
 import com.google.gson.Gson;
 import com.loopj.android.http.RequestParams;
@@ -75,7 +72,6 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -376,53 +372,6 @@ public class Utility {
         Debug.i("getStoragePath:" + path);
 
         return path;
-    }
-
-    /**
-     * 获取指定城市有哪些城区
-     *
-     * @param city 城市名
-     * @return 城区
-     */
-    public static List<String> getDistricts(Context context, String city) {
-        if (TextUtils.isEmpty(city)) {
-            return null;
-        }
-        AllAreaDataItem allAreaDataItem = Utility.readCityDataFromFile(context);
-        if (allAreaDataItem == null || allAreaDataItem.data == null || allAreaDataItem.data.city_district == null) {
-            return null;
-        }
-        for (AllAreaDataItem.CityDistrict cityDistrict : allAreaDataItem.data.city_district) {
-            if (TextUtils.equals(cityDistrict.area_name, city)) {
-                List<String> districtList = new ArrayList<>();
-                for (AllAreaDataItem.SubArea sub_area : cityDistrict.sub_area) {
-                    districtList.add(sub_area.area_name);
-                }
-                return districtList;
-            }
-        }
-        return null;
-    }
-
-    public static AllAreaDataItem readCityDataFromFile(Context context) {
-        String fileVersion = PreferenceManager.getDefaultSharedPreferences(context).getString(ConstantUtils.KEY_AREA_VERSION, "");
-        String citiesJsonData;
-        if (TextUtils.isEmpty(fileVersion)) {
-            citiesJsonData = Utility.readStringFromAssetFile(context, ConstantUtils.FILE_ALL_AREA_JSON_NAME);
-        } else {
-            File file = new File(context.getFilesDir() + File.separator + ConstantUtils.FILE_ALL_AREA_JSON_NAME);
-            Log.d("rqy", "CityListActivity--" + file.getAbsolutePath() + "--" + file.exists());
-            if (file.exists()) {
-                citiesJsonData = Utility.readStringFromApplicationFile(context, ConstantUtils.FILE_ALL_AREA_JSON_NAME);
-            } else {
-                citiesJsonData = Utility.readStringFromAssetFile(context, ConstantUtils.FILE_ALL_AREA_JSON_NAME);
-            }
-        }
-        if (TextUtils.isEmpty(citiesJsonData)) {
-            return null;
-        }
-        AllAreaDataItem allAreaDateItem = JsonParser.getInstance().fromJson(citiesJsonData, AllAreaDataItem.class);
-        return allAreaDateItem;
     }
 
     public static String readStringFromApplicationFile(Context context, String fileName) {
@@ -748,17 +697,19 @@ public class Utility {
     }
 
     public static String getVersionName(Context mContext) {
-        String version = "";
-        PackageInfo pInfo;
-        try {
-            pInfo = mContext.getPackageManager().getPackageInfo(mContext.getPackageName(), 0);
-            version = pInfo.versionName + "(" + pInfo.versionCode + ")";
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
-        if (version != null && !version.contains("v")) {
-            version = "v" + version;
-        }
+//        String version = "";
+//        PackageInfo pInfo;
+//        try {
+//            pInfo = mContext.getPackageManager().getPackageInfo(mContext.getPackageName(), 0);
+//            version = pInfo.versionName + "(" + pInfo.versionCode + ")";
+//        } catch (PackageManager.NameNotFoundException e) {
+//            e.printStackTrace();
+//        }
+//        if (version != null && !version.contains("v")) {
+//            version = "v" + version;
+//        }
+        String version = "1.0";
+        LogUtils.i(getLogTag(),"----getVersionName--------"+version);
         return version;
     }
 

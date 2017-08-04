@@ -93,9 +93,9 @@
                 android:background="@color/general_divider" />
 
             <LinearLayout
+                android:id="@+id/ll_service"
                 android:layout_width="0dp"
                 android:layout_height="80dp"
-                android:id="@+id/ll_service"
                 android:layout_marginLeft="10dp"
                 android:layout_weight="1"
                 android:orientation="vertical"
@@ -125,34 +125,41 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/fl_connect"
             android:gravity="center">
 
-            <de.hdodenhof.circleimageview.CircleImageView
+            <FrameLayout
+                android:id="@+id/fl_connect"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
-                android:layout_gravity="center"
-                android:id="@+id/iv_out"
-                android:visibility="visible"
-                android:src="#3E88FA" />
+                android:layout_gravity="center">
 
-            <de.hdodenhof.circleimageview.CircleImageView
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:id="@+id/iv_inner"
-                android:layout_gravity="center"
-                android:visibility="visible"
-                android:src="@drawable/homepagelink" />
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/iv_out"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_gravity="center"
+                    android:src="#3E88FA"
+                    android:visibility="visible" />
 
-            <pl.droidsonroids.gif.GifImageView
-                android:id="@+id/activity_gif_giv"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_gravity="center"
-                android:visibility="gone"
-                android:src="@drawable/homepagelink"/>
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/iv_inner"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/homepagelink"
+                    android:visibility="visible" />
+
+                <pl.droidsonroids.gif.GifImageView
+                    android:id="@+id/activity_gif_giv"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/homepagelink"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+
         </FrameLayout>
-
 
 
     </LinearLayout>
