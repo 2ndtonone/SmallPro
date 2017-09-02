@@ -2,7 +2,7 @@ package com.Funcgo.Outline.utils;
 
 public class ConstantUtils {
 
-    private static String SERVER_URL = "http://api.funcgo.com/v1/";
+    private static String SERVER_URL = "http://115.28.230.215/v1/";
 
     public static final String DEFAULT_LNG = "120.544392";
     public static final String DEFAULT_LAT = "31.282958";

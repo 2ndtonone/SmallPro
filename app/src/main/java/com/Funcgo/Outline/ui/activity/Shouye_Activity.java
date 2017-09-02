@@ -259,7 +259,7 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
                     userInfo.service_conf.method + ":" + userInfo.service_conf.pass +
                     "@" + userInfo.service_conf.service + ":" + userInfo.service_conf.port;
             Debug.l(getLogTag(), "---vpn URL--------" + url);
-//            url = "ss://aes-256-cfb:Zxc950320@50.117.38.29:8831";
+            url = "ss://aes-256-cfb:Zxc950320@50.117.38.29:8831";
             setProxyUrl(url);
         }
     }
