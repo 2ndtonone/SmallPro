@@ -232,6 +232,9 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
                 long currentTiem = new Date().getTime() / 1000;
                 long less = userInfo.user_order.service_time - currentTiem;
                 String lessDay = (less / 3600 / 24 + 1) + "";
+                if(less < 0){
+                    lessDay = "0";
+                }
                 Debug.l(getLogTag(), "剩余天数：" + lessDay);
                 progressBar.setLessDay(lessDay);
 
@@ -239,6 +242,9 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
 
 
                 float progress = less * 100 / total + 1;
+                if(less < 0){
+                    progress = 0;
+                }
                 progressBar.setProgress((int) progress);
             } catch (Exception e) {
                 isVip = false;
