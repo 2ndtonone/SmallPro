@@ -397,6 +397,10 @@ public class Shouye_Activity extends BaseActivity implements LocalVpnService.onS
                     if (isConnect) {
                         LocalVpnService.IsRunning = false;
                     } else {
+                        if(progressBar.getProgress() == 0){
+                            showTimeOverDialog();
+                            return;
+                        }
                         Intent intent = LocalVpnService.prepare(this);
                         if (intent == null) {
                             startVPNService();
